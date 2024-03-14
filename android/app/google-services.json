@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "435462336363",
+    "project_id": "dummy-push-notification",
+    "storage_bucket": "dummy-push-notification.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:435462336363:android:b2c845341ddbac3f60662e",
+        "android_client_info": {
+          "package_name": "com.pushnotification"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCEuqYYvohQ7T7XVJVTSR1PVD07C4iEK7g"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
