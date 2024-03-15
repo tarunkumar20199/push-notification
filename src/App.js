@@ -1,40 +1,29 @@
-/* eslint-disable no-unused-vars */
-/* eslint-disable react-native/no-inline-styles */
-import React, {useEffect} from 'react';
-import {Text, View, PermissionsAndroid, Platform} from 'react-native';
-import {
-  getFcmToken,
-  requestUserPermission,
-  unsubscribeNotification,
-} from './utils/push-notification-helper';
+import React, {useState, useEffect} from 'react';
+import {NativeBaseProvider, View} from 'native-base';
+import {NavigationContainer} from '@react-navigation/native';
+import {NavigationScreen} from './components/Navigations/NavigationScreen';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import {signInWithMobile} from './utils/Auth';
 
 function App() {
-  const NotificationPermission = async () => {
-    if (Platform.OS === 'android') {
-      try {
-        const response = await PermissionsAndroid.request(
-          PermissionsAndroid.PERMISSIONS.POST_NOTIFICATIONS,
-        );
-        if (response === 'granted') {
-          const fcmToken = getFcmToken();
-          await AsyncStorage.setItem('fcmToken', JSON.stringify(fcmToken));
-        }
-      } catch (error) {}
-    }
-  };
+  const [data, setData] = useState('');
+
   useEffect(() => {
-    // requestUserPermission();
-    getFcmToken();
-    unsubscribeNotification();
-    NotificationPermission();
-  }, []);
+    (async () => {
+      const userDetails = await AsyncStorage.getItem('user');
+      const objectData = JSON.parse(userDetails);
+      setData(objectData?.user?.uid);
+    })();
+    // signInWithMobile('+91 9588015952');
+  }, [data]);
   return (
-    <>
-      <View style={{flex: 1, backgroundColor: 'white'}}>
-        <Text style={{color: 'black'}}>Hello World!</Text>
-      </View>
-    </>
+    <NavigationContainer>
+      <NativeBaseProvider>
+        <View bg={'white'} flex="1">
+          <NavigationScreen userId={data} />
+        </View>
+      </NativeBaseProvider>
+    </NavigationContainer>
   );
 }
 export default App;

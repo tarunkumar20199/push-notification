@@ -12,7 +12,12 @@
           "package_name": "com.pushnotification"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "435462336363-d0qitvju5kr9c7idmhch3hn0svnh4hv2.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyCEuqYYvohQ7T7XVJVTSR1PVD07C4iEK7g"
@@ -20,7 +25,12 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "435462336363-d0qitvju5kr9c7idmhch3hn0svnh4hv2.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         }
       }
     }
