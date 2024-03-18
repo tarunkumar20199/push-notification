@@ -20,11 +20,17 @@ import {
   Image,
 } from 'native-base';
 import {TouchableOpacity} from 'react-native';
-import {handleSignIn, signInWithMobile} from '../../utils/Auth';
-import {GoogleSignin} from '@react-native-google-signin/google-signin';
-import auth from '@react-native-firebase/auth';
-import {webID} from '../../common/constant';
+import {
+  handleSignIn,
+  signInWithMobile,
+  onGoogleButtonPress,
+} from '../../utils/Auth';
+import {
+  GoogleSignin,
+  statusCodes,
+} from '@react-native-google-signin/google-signin';
 import {Facebook, Google} from '../../utils/images';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export const LoginScreen = ({navigation}) => {
   const [value, setValue] = useState({
@@ -35,34 +41,27 @@ export const LoginScreen = ({navigation}) => {
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [confirm, setConfirm] = useState('');
-  console.log('confirm :', confirm);
-
   const toast = useToast();
 
-  useEffect(() => {
-    GoogleSignin.configure({
-      webClientId: webID,
-    });
-  }, []);
 
-  const onGoogleButtonPress = async () => {
-    // Check if your device supports Google Play
-    try {
-      await GoogleSignin.hasPlayServices({showPlayServicesUpdateDialog: true});
-      // Get the users ID token
-      const {idToken} = await GoogleSignin.signIn();
-      console.log('idToken :', idToken);
-
-      // Create a Google credential with the token
-      const googleCredential = auth.GoogleAuthProvider.credential(idToken);
-
-      // Sign-in the user with the credential
-      return auth().signInWithCredential(googleCredential);
-    } catch (error) {
-      console.log(error);
+  const googleLogin = async () => {
+    const googleLoginData = await onGoogleButtonPress();
+    if (googleLoginData?.user?.id) {
+      AsyncStorage.setItem('user', JSON.stringify(googleLoginData?.user));
+      navigation.navigate('Home');
+    } else {
+      toast.show({
+        render: () => {
+          return (
+            <Box bg="error.600" px="2" py="1" rounded="sm" mb={5}>
+              {googleLoginData}
+            </Box>
+          );
+        },
+        placement: 'top',
+      });
     }
   };
-
   const handleLogin = async () => {
     setIsLoading(true);
     if (value.type === 'email') {
@@ -121,6 +120,7 @@ export const LoginScreen = ({navigation}) => {
         },
         placement: 'top',
       });
+      setIsLoading(false);
     }
   };
   const checkInputType = text => {
@@ -191,7 +191,11 @@ export const LoginScreen = ({navigation}) => {
               </Link>
             </FormControl>
           )}
-          <Button mt="2" colorScheme="indigo" onPress={handleLogin}>
+          <Button
+            mt="2"
+            colorScheme="indigo"
+            onPress={handleLogin}
+            color="blue.900">
             Sign in
           </Button>
           <VStack>
@@ -209,7 +213,7 @@ export const LoginScreen = ({navigation}) => {
               </View>
             </HStack>
             <HStack justifyContent={'center'} alignItems={'center'} space={1}>
-              <TouchableOpacity onPress={onGoogleButtonPress}>
+              <TouchableOpacity onPress={googleLogin}>
                 <Image source={Google} alt="google" />
               </TouchableOpacity>
               <TouchableOpacity>

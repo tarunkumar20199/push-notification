@@ -3,13 +3,19 @@
 import {Alert} from 'react-native';
 import auth from '@react-native-firebase/auth';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import {GoogleSignin} from '@react-native-google-signin/google-signin';
+import {
+  GoogleSignin,
+  statusCodes,
+} from '@react-native-google-signin/google-signin';
 
 export const handleAuth = async (email, password) => {
   try {
     const {user} = await auth().createUserWithEmailAndPassword(email, password);
+    console.log('user :', user);
     if (user) {
-      await user.sendEmailVerification();
+      const result = await user.user.sendEmailVerification();
+      console.log('result :', result);
+      auth.signOut();
     }
   } catch (error) {
     return error;
@@ -40,22 +46,25 @@ export const signOut = async ({navigation}) => {
   }
 };
 
-// export const onGoogleButtonPress = async () => {
-//   // Check if your device supports Google Play
-//   await GoogleSignin.hasPlayServices({showPlayServicesUpdateDialog: true});
-//   // Get the users ID token
-//   const {idToken} = await GoogleSignin.signIn();
-//   console.log('idToken :', idToken);
-
-//   // Create a Google credential with the token
-//   const googleCredential = auth.GoogleAuthProvider.credential(idToken);
-
-//   // Sign-in the user with the credential
-//   return auth().signInWithCredential(googleCredential);
-// };
+export const onGoogleButtonPress = async () => {
+  GoogleSignin.configure();
+  try {
+    await GoogleSignin.hasPlayServices();
+    return await GoogleSignin.signIn();
+  } catch (error) {
+    if (error.code === statusCodes.SIGN_IN_CANCELLED) {
+      return 'user cancelled the login flow.';
+    } else if (error.code === statusCodes.IN_PROGRESS) {
+      return 'In progress';
+    } else if (error.code === statusCodes.PLAY_SERVICES_NOT_AVAILABLE) {
+      return 'play services not available or outdated';
+    } else {
+      return 'Something went wrong';
+    }
+  }
+};
 
 export const signInWithMobile = async phoneNumber => {
-  console.log('phoneNumber :', phoneNumber);
   try {
     return await auth().signInWithPhoneNumber(phoneNumber);
   } catch (error) {

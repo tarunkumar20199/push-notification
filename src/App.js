@@ -14,15 +14,20 @@ function App() {
   const [data, setData] = useState('');
 
   useEffect(() => {
-    (async () => {
-      const userDetails = await AsyncStorage.getItem('user');
-      const objectData = JSON.parse(userDetails);
-      setData(objectData?.user?.uid);
-    })();
-    getFcmToken();
-    NotificationPermission();
-    SplashScreen.hide();
-  }, [data]);
+    const fetchData = async () => {
+      try {
+        const userDetails = await AsyncStorage.getItem('user');
+        setData(userDetails);
+        await new Promise(resolve => setTimeout(resolve, 300));
+        SplashScreen.hide();
+        getFcmToken();
+        NotificationPermission();
+      } catch (error) {
+        console.error('Error fetching data:', error);
+      }
+    };
+    fetchData();
+  }, []);
 
   return (
     <NavigationContainer>

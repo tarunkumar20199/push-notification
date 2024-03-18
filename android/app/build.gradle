@@ -110,6 +110,10 @@ dependencies {
     implementation("com.facebook.react:react-android")
     implementation("com.facebook.react:flipper-integration")
     implementation project(':react-native-splash-screen')
+    implementation 'com.google.firebase:firebase-auth:20.0.1'
+    implementation 'com.google.firebase:firebase-messaging:21.0.0'
+    implementation 'com.google.firebase:firebase-storage:19.2.0' 
+    implementation 'com.google.android.gms:play-services-auth:19.0.0'
     if (hermesEnabled.toBoolean()) {
         implementation("com.facebook.react:hermes-android")
     } else {

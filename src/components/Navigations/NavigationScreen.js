@@ -9,7 +9,23 @@ import HomeScreen from '../home/HomeScreen';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import OTPScreen from '../logins/OtpScreen';
 const Stack = createStackNavigator();
+
+const Logout = async navigation => {
+  try {
+    await AsyncStorage.removeItem('user');
+    navigation.navigate('Login');
+  } catch (error) {
+    console.error('Error while logging out:', error);
+  }
+};
 export const NavigationScreen = ({userId}) => {
+  const headerRightButton = navigation => (
+    <View pr="4">
+      <Button onPress={() => Logout(navigation)} title="Info" color="#fff">
+        Logout
+      </Button>
+    </View>
+  );
   return (
     <Stack.Navigator>
       {userId ? (
@@ -20,27 +36,8 @@ export const NavigationScreen = ({userId}) => {
             options={({navigation}) => ({
               headerTitle: 'Details',
               headerLeft: () => <></>,
-              headerRight: () => (
-                <View pr="4">
-                  <Button
-                    onPress={async () => {
-                      await AsyncStorage.removeItem('user');
-                      navigation.navigate('Login');
-                    }}
-                    title="Info"
-                    color="#fff">
-                    Logout
-                  </Button>
-                </View>
-              ),
+              headerRight: () => headerRightButton(navigation),
             })}
-          />
-          <Stack.Screen
-            name="Login"
-            component={LoginScreen}
-            options={{
-              headerShown: false,
-            }}
           />
         </>
       ) : (
@@ -64,19 +61,7 @@ export const NavigationScreen = ({userId}) => {
             component={HomeScreen}
             options={({navigation}) => ({
               headerTitle: 'Details',
-              headerRight: () => (
-                <View pr="4">
-                  <Button
-                    onPress={async () => {
-                      await AsyncStorage.removeItem('user');
-                      navigation.navigate('Login');
-                    }}
-                    title="Info"
-                    color="#fff">
-                    Logout
-                  </Button>
-                </View>
-              ),
+              headerRight: () => headerRightButton(navigation),
             })}
           />
           <Stack.Screen
@@ -88,40 +73,6 @@ export const NavigationScreen = ({userId}) => {
           />
         </>
       )}
-      {/* <Stack.Screen
-        name="Login"
-        component={LoginScreen}
-        options={{
-          headerShown: false,
-        }}
-      /> */}
-      {/* <Stack.Screen
-        name="Home"
-        component={HomeScreen}
-        options={({navigation}) => ({
-          headerTitle: 'Details',
-          headerRight: () => (
-            <View pr="4">
-              <Button
-                onPress={async () => {
-                  await AsyncStorage.removeItem('user');
-                  navigation.navigate('Login');
-                }}
-                title="Info"
-                color="#fff">
-                Logout
-              </Button>
-            </View>
-          ),
-        })}
-      /> */}
-      {/* <Stack.Screen
-        name="Otp"
-        component={OTPScreen}
-        options={{
-          headerShown: false,
-        }}
-      /> */}
     </Stack.Navigator>
   );
 };

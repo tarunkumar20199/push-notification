@@ -1,18 +1,43 @@
 /* eslint-disable prettier/prettier */
 /* eslint-disable no-unused-vars */
 /* eslint-disable prettier/prettier */
-import React, {useState, useRef, useEffect} from 'react';
+import React, {useState, useRef, useEffect, memo} from 'react';
 import {View, TextInput, Button, Alert, StyleSheet, Text} from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import {useToast, Box} from 'native-base';
+import {signInWithMobile} from '../../utils/Auth';
 
-const OTPScreen = ({route}) => {
+const OTPScreen = ({route, navigation}) => {
+  const toast = useToast();
   const {confirmOtp, mobileNo} = route.params;
-  console.log('confirmOtp :', confirmOtp);
+
   const [otp, setOTP] = useState(['', '', '', '', '', '']);
   const [timer, setTimer] = useState(0);
   const [buttonClick, setButtonClick] = useState(false);
+  const [confirm, setConfirm] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const inputRefs = useRef([]);
 
+  async function confirmCode(e) {
+    e.preventDefault();
+    const enteredOTP = otp.join('');
+    try {
+      const result = await confirm.confirm(enteredOTP);
+      await AsyncStorage.setItem('user', JSON.stringify(result));
+      navigation.navigate('Home');
+    } catch (error) {
+      toast.show({
+        render: () => {
+          return (
+            <Box bg="error.600" px="2" py="1" rounded="sm" mb={5}>
+              {error.code}
+            </Box>
+          );
+        },
+        placement: 'top',
+      });
+    }
+  }
   useEffect(() => {
     let intervalId;
 
@@ -41,16 +66,48 @@ const OTPScreen = ({route}) => {
     const enteredOTP = otp.join('');
     try {
       const result = await confirmOtp.confirm(enteredOTP);
-      console.log('result :', result);
+      await AsyncStorage.setItem('user', JSON.stringify(result));
+      navigation.navigate('Home');
     } catch (error) {
       console.log('error :', error);
       console.log('Invalid code.');
     }
   };
 
-  const handleResendOTP = e => {
+  const handleResendOTP = async e => {
     e.preventDefault();
     // Logic to resend OTP
+    setIsLoading(true);
+    const confirmation = await signInWithMobile(`+91${mobileNo}`);
+    if (confirmation.code) {
+      toast.show({
+        render: () => {
+          return (
+            <Box bg="error.600" px="2" py="1" rounded="sm" mb={5}>
+              {confirmation.code}
+            </Box>
+          );
+        },
+        placement: 'top',
+      });
+      setIsLoading(false);
+    } else if (confirmation) {
+      setConfirm(confirmation);
+      setIsLoading(false);
+    } else {
+      toast.show({
+        render: () => {
+          return (
+            <Box bg="error.600" px="2" py="1" rounded="sm" mb={5}>
+              'Something went Wrong...'
+            </Box>
+          );
+        },
+        placement: 'top',
+      });
+      setIsLoading(false);
+    }
+    setConfirm(confirmation);
     setButtonClick(true);
     setTimer(60); // Reset timer
   };
@@ -71,7 +128,10 @@ const OTPScreen = ({route}) => {
           />
         ))}
       </View>
-      <Button title="Verify OTP" onPress={handleVerifyOTP} />
+      <Button
+        title="Verify OTP"
+        onPress={confirm ? confirmCode : handleVerifyOTP}
+      />
       <View style={styles.resendContainer}>
         <Text style={styles.timer}>
           {timer > 0 ? `Resend OTP in ${timer} seconds` : ''}
@@ -118,4 +178,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default OTPScreen;
+export default memo(OTPScreen);

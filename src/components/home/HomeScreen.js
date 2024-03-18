@@ -17,8 +17,6 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 const HomeScreen = () => {
   const [user, setUser] = useState('');
   const [notification, setNotification] = useState();
-  console.log('notification :', notification);
-  const toast = useToast();
 
   useEffect(() => {
     (async () => {
@@ -81,7 +79,7 @@ const HomeScreen = () => {
         <FlatList
           data={user}
           renderItem={renderItem}
-          keyExtractor={item => item?.uid}
+          keyExtractor={item => item?.uid || item?.id}
         />
       ) : (
         <Spinner
