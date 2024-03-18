@@ -1,3 +1,6 @@
+/* eslint-disable prettier/prettier */
+/* eslint-disable react-hooks/exhaustive-deps */
+/* eslint-disable prettier/prettier */
 import React, {useState, useEffect} from 'react';
 import {
   Box,
@@ -14,12 +17,14 @@ import {
   View,
   useToast,
   Spinner,
+  Image,
 } from 'native-base';
 import {TouchableOpacity} from 'react-native';
 import {handleSignIn, signInWithMobile} from '../../utils/Auth';
 import {GoogleSignin} from '@react-native-google-signin/google-signin';
 import auth from '@react-native-firebase/auth';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import {webID} from '../../common/constant';
+import {Facebook, Google} from '../../utils/images';
 
 export const LoginScreen = ({navigation}) => {
   const [value, setValue] = useState({
@@ -29,12 +34,14 @@ export const LoginScreen = ({navigation}) => {
 
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [confirm, setConfirm] = useState('');
+  console.log('confirm :', confirm);
+
   const toast = useToast();
 
   useEffect(() => {
     GoogleSignin.configure({
-      webClientId:
-        '435462336363-d0qitvju5kr9c7idmhch3hn0svnh4hv2.apps.googleusercontent.com',
+      webClientId: webID,
     });
   }, []);
 
@@ -86,9 +93,23 @@ export const LoginScreen = ({navigation}) => {
         setIsLoading(false);
       }
     } else if (value.type === 'mobile') {
-      console.log('value.type :', value.input);
       const confirmation = await signInWithMobile(`+91${value?.input}`);
-      await AsyncStorage.setItem('confirmation', confirmation);
+      if (confirmation.code) {
+        toast.show({
+          render: () => {
+            return (
+              <Box bg="error.600" px="2" py="1" rounded="sm" mb={5}>
+                {confirmation.code}
+              </Box>
+            );
+          },
+          placement: 'top',
+        });
+        setIsLoading(false);
+      } else if (confirmation) {
+        setConfirm(confirmation);
+        setIsLoading(false);
+      }
     } else {
       toast.show({
         render: () => {
@@ -116,7 +137,16 @@ export const LoginScreen = ({navigation}) => {
   const handleTextChange = text => {
     setValue({input: text, type: checkInputType(text)});
   };
-
+  // console.log('confirm :', confirm);
+  useEffect(() => {
+    if (confirm) {
+      navigation.navigate('Otp', {
+        confirmOtp: confirm,
+        mobileNo: value?.input,
+      });
+      setIsLoading(false);
+    }
+  }, [confirm]);
   return (
     <Center w="100%">
       <Box safeArea p="2" py="8" w="90%" maxW="290">
@@ -179,9 +209,12 @@ export const LoginScreen = ({navigation}) => {
               </View>
             </HStack>
             <HStack justifyContent={'center'} alignItems={'center'} space={1}>
-              <Text onPress={onGoogleButtonPress}>Google</Text>
-              <Text>Github</Text>
-              <Text>Facebook</Text>
+              <TouchableOpacity onPress={onGoogleButtonPress}>
+                <Image source={Google} alt="google" />
+              </TouchableOpacity>
+              <TouchableOpacity>
+                <Image source={Facebook} alt="facebook" />
+              </TouchableOpacity>
             </HStack>
           </VStack>
 

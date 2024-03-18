@@ -1,3 +1,4 @@
+/* eslint-disable prettier/prettier */
 /* eslint-disable no-unused-vars */
 import {Alert} from 'react-native';
 import auth from '@react-native-firebase/auth';
@@ -56,9 +57,8 @@ export const signOut = async ({navigation}) => {
 export const signInWithMobile = async phoneNumber => {
   console.log('phoneNumber :', phoneNumber);
   try {
-    const confirmation = await auth().signInWithPhoneNumber(phoneNumber);
-    console.log('confirmation :', confirmation._auth);
+    return await auth().signInWithPhoneNumber(phoneNumber);
   } catch (error) {
-    console.log('error :', error);
+    return error;
   }
 };

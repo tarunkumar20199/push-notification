@@ -1,9 +1,29 @@
-import React, {useState, useRef} from 'react';
-import {View, TextInput, Button, Alert, StyleSheet} from 'react-native';
+/* eslint-disable prettier/prettier */
+/* eslint-disable no-unused-vars */
+/* eslint-disable prettier/prettier */
+import React, {useState, useRef, useEffect} from 'react';
+import {View, TextInput, Button, Alert, StyleSheet, Text} from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const OTPScreen = () => {
+const OTPScreen = ({route}) => {
+  const {confirmOtp, mobileNo} = route.params;
+  console.log('confirmOtp :', confirmOtp);
   const [otp, setOTP] = useState(['', '', '', '', '', '']);
+  const [timer, setTimer] = useState(0);
+  const [buttonClick, setButtonClick] = useState(false);
   const inputRefs = useRef([]);
+
+  useEffect(() => {
+    let intervalId;
+
+    if (buttonClick && timer > 0) {
+      intervalId = setInterval(() => {
+        setTimer(prevTimer => prevTimer - 1);
+      }, 1000);
+    }
+
+    return () => clearInterval(intervalId);
+  }, [timer, buttonClick]);
 
   const handleChangeText = (text, index) => {
     const updatedOTP = [...otp];
@@ -16,10 +36,23 @@ const OTPScreen = () => {
     }
   };
 
-  const handleVerifyOTP = () => {
+  const handleVerifyOTP = async e => {
+    e.preventDefault();
     const enteredOTP = otp.join('');
-    // Here you can handle the verification logic
-    Alert.alert('Entered OTP', enteredOTP);
+    try {
+      const result = await confirmOtp.confirm(enteredOTP);
+      console.log('result :', result);
+    } catch (error) {
+      console.log('error :', error);
+      console.log('Invalid code.');
+    }
+  };
+
+  const handleResendOTP = e => {
+    e.preventDefault();
+    // Logic to resend OTP
+    setButtonClick(true);
+    setTimer(60); // Reset timer
   };
 
   return (
@@ -39,6 +72,16 @@ const OTPScreen = () => {
         ))}
       </View>
       <Button title="Verify OTP" onPress={handleVerifyOTP} />
+      <View style={styles.resendContainer}>
+        <Text style={styles.timer}>
+          {timer > 0 ? `Resend OTP in ${timer} seconds` : ''}
+        </Text>
+        <Button
+          title="Resend OTP"
+          onPress={handleResendOTP}
+          disabled={timer > 0}
+        />
+      </View>
     </View>
   );
 };
@@ -62,6 +105,16 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     width: 40,
     textAlign: 'center',
+    color: 'black',
+  },
+  resendContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 20,
+  },
+  timer: {
+    marginRight: 10,
+    color: 'black',
   },
 });
 

@@ -1,3 +1,4 @@
+/* eslint-disable prettier/prettier */
 /* eslint-disable react/no-unstable-nested-components */
 import React from 'react';
 import {createStackNavigator} from '@react-navigation/stack';
@@ -11,7 +12,7 @@ const Stack = createStackNavigator();
 export const NavigationScreen = ({userId}) => {
   return (
     <Stack.Navigator>
-      {/* {userId ? (
+      {userId ? (
         <>
           <Stack.Screen
             name="Home"
@@ -78,16 +79,23 @@ export const NavigationScreen = ({userId}) => {
               ),
             })}
           />
+          <Stack.Screen
+            name="Otp"
+            component={OTPScreen}
+            options={{
+              headerShown: false,
+            }}
+          />
         </>
-      )} */}
+      )}
       {/* <Stack.Screen
         name="Login"
         component={LoginScreen}
         options={{
           headerShown: false,
         }}
-      />
-      <Stack.Screen
+      /> */}
+      {/* <Stack.Screen
         name="Home"
         component={HomeScreen}
         options={({navigation}) => ({
@@ -107,13 +115,13 @@ export const NavigationScreen = ({userId}) => {
           ),
         })}
       /> */}
-      <Stack.Screen
+      {/* <Stack.Screen
         name="Otp"
         component={OTPScreen}
         options={{
           headerShown: false,
         }}
-      />
+      /> */}
     </Stack.Navigator>
   );
 };

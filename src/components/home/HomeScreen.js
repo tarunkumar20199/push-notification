@@ -1,4 +1,6 @@
+/* eslint-disable prettier/prettier */
 import React, {useEffect, useState} from 'react';
+import messaging from '@react-native-firebase/messaging';
 import {
   Box,
   FlatList,
@@ -7,14 +9,16 @@ import {
   HStack,
   VStack,
   Text,
-  Spacer,
+  useToast,
   Divider,
   Spinner,
 } from 'native-base';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-
 const HomeScreen = () => {
   const [user, setUser] = useState('');
+  const [notification, setNotification] = useState();
+  console.log('notification :', notification);
+  const toast = useToast();
 
   useEffect(() => {
     (async () => {
@@ -22,16 +26,25 @@ const HomeScreen = () => {
       const objectData = JSON.parse(userDetails);
       setUser([objectData?.user]);
     })();
+    unsubscribeNotification();
   }, []);
+
   const formatDateTime = signInTime => {
     const date = new Date(signInTime);
     const formattedDate = date.toLocaleString();
 
     return formattedDate;
   };
+
+  const unsubscribeNotification = () => {
+    const unsubscribe = messaging().onMessage(async remoteMessage => {
+      setNotification(remoteMessage?.notification);
+    });
+    return unsubscribe;
+  };
+
   const renderItem = ({item}) => (
     <>
-      {/* {console.log(item)} */}
       <Box>
         <HStack alignSelf="center">
           <Avatar
@@ -62,7 +75,6 @@ const HomeScreen = () => {
     </>
   );
 
-  //   return <>{Object.keys(user).length > 0 && }</>;
   return (
     <Box p="4">
       {user ? (

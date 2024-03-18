@@ -1,9 +1,14 @@
+/* eslint-disable prettier/prettier */
 import React, {useState, useEffect} from 'react';
 import {NativeBaseProvider, View} from 'native-base';
 import {NavigationContainer} from '@react-navigation/native';
 import {NavigationScreen} from './components/Navigations/NavigationScreen';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import {signInWithMobile} from './utils/Auth';
+import {
+  NotificationPermission,
+  getFcmToken,
+} from './utils/push-notification-helper';
+import SplashScreen from 'react-native-splash-screen';
 
 function App() {
   const [data, setData] = useState('');
@@ -14,8 +19,11 @@ function App() {
       const objectData = JSON.parse(userDetails);
       setData(objectData?.user?.uid);
     })();
-    // signInWithMobile('+91 9588015952');
+    getFcmToken();
+    NotificationPermission();
+    SplashScreen.hide();
   }, [data]);
+
   return (
     <NavigationContainer>
       <NativeBaseProvider>
