@@ -22,7 +22,7 @@ const HomeScreen = () => {
     (async () => {
       const userDetails = await AsyncStorage.getItem('user');
       const objectData = JSON.parse(userDetails);
-      setUser([objectData?.user]);
+      setUser([objectData]);
     })();
     unsubscribeNotification();
   }, []);
@@ -79,7 +79,7 @@ const HomeScreen = () => {
         <FlatList
           data={user}
           renderItem={renderItem}
-          keyExtractor={item => item?.uid || item?.id}
+          keyExtractor={item => item.id || item.uid}
         />
       ) : (
         <Spinner

@@ -43,11 +43,10 @@ export const LoginScreen = ({navigation}) => {
   const [confirm, setConfirm] = useState('');
   const toast = useToast();
 
-
   const googleLogin = async () => {
     const googleLoginData = await onGoogleButtonPress();
-    if (googleLoginData?.user?.id) {
-      AsyncStorage.setItem('user', JSON.stringify(googleLoginData?.user));
+    if (googleLoginData.id) {
+      AsyncStorage.setItem('user', JSON.stringify(googleLoginData));
       navigation.navigate('Home');
     } else {
       toast.show({

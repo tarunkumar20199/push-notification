@@ -7,16 +7,16 @@ import {
   GoogleSignin,
   statusCodes,
 } from '@react-native-google-signin/google-signin';
+import {convertNestedArrays} from '../helper/helper';
+import firestore from '@react-native-firebase/firestore';
 
 export const handleAuth = async (email, password) => {
   try {
     const {user} = await auth().createUserWithEmailAndPassword(email, password);
-    console.log('user :', user);
-    if (user) {
-      const result = await user.user.sendEmailVerification();
-      console.log('result :', result);
-      auth.signOut();
-    }
+
+    const flattenArray = convertNestedArrays(JSON.stringify(user));
+    await firestore().collection('Users').add(flattenArray);
+    return user;
   } catch (error) {
     return error;
   }
@@ -24,14 +24,11 @@ export const handleAuth = async (email, password) => {
 
 export const handleSignIn = async (email, password) => {
   try {
-    const userCredential = await auth().signInWithEmailAndPassword(
-      email,
-      password,
-    );
-    if (userCredential) {
-      await AsyncStorage.setItem('user', JSON.stringify(userCredential));
+    const {user} = await auth().signInWithEmailAndPassword(email, password);
+    if (user) {
+      await AsyncStorage.setItem('user', JSON.stringify(user));
     }
-    return userCredential;
+    return user;
   } catch (error) {
     return error;
   }
@@ -50,7 +47,11 @@ export const onGoogleButtonPress = async () => {
   GoogleSignin.configure();
   try {
     await GoogleSignin.hasPlayServices();
-    return await GoogleSignin.signIn();
+    const {user} = await GoogleSignin.signIn();
+    const flattenArray = convertNestedArrays(JSON.stringify(user));
+    await firestore().collection('googleUser').add(flattenArray);
+    console.log('user :', user);
+    return user;
   } catch (error) {
     if (error.code === statusCodes.SIGN_IN_CANCELLED) {
       return 'user cancelled the login flow.';
@@ -66,7 +67,10 @@ export const onGoogleButtonPress = async () => {
 
 export const signInWithMobile = async phoneNumber => {
   try {
-    return await auth().signInWithPhoneNumber(phoneNumber);
+    const mobileData = await auth().signInWithPhoneNumber(phoneNumber);
+    // const {user} = convertNestedArrays(JSON.stringify(mobileData));
+    // await firestore().collection('mobileUser').add(user);
+    return mobileData;
   } catch (error) {
     return error;
   }
